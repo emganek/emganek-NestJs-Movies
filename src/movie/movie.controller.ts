@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
+import { WithoutLogIn } from '../system/decorators/auth.decorator';
 import { MovieService } from './services/movie.service';
 
 @Controller('api/movie/')
@@ -14,9 +15,19 @@ export class MovieController {
     };
   }
 
+  @WithoutLogIn()
   @Get()
   async getAllMovies() {
     const movies = await this.movieService.getMovies();
+    
+    return {
+      content: movies
+    };
+  }
+
+  @Get('detail')
+  async getMovieById(@Query('MaPhim') maPhim: string) {
+    const movies = await this.movieService.getMovieById(maPhim);
     
     return {
       content: movies

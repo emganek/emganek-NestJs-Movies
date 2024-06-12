@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from 'src/user/services/user.service';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from 'src/user/services/user.service';
 import { UserLogIn } from '../models/auth';
 
 @Injectable()
@@ -36,6 +36,7 @@ export class AuthService {
       content: {
         hoTen: user.hoTen,
         email: user.email,
+        maLoaiNguoiDung: user.maLoaiNguoiDung,
         accessToken: await this.jwtService.signAsync(payload),
       },
     };

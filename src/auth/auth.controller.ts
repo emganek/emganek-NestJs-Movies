@@ -14,7 +14,6 @@ export class AuthController {
   @WithoutLogIn()
   @Post('/login')
   async login(@Body() req: UserLogIn) {
-    console.log("request", req);
     return this.authService.login(req);
   }
 }

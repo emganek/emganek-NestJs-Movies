@@ -17,10 +17,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isNoNeedLogin = this.reflector.get(CUSTOM_DECORATOR_KEYS.withoutLogin, context.getHandler());
 
-    console.log('isNoNeedLogin', isNoNeedLogin);
-
     if (isNoNeedLogin) return true;
-
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);

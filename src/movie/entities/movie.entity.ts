@@ -1,10 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import { UserRole } from '../../enums/enums';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class MovieEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @Column()
   maPhim: string;
@@ -21,7 +20,7 @@ export class MovieEntity {
   @Column()
   trailer: string;
 
-  @Column()
+  @Column({type: 'date', default: '2024-01-01'})
   ngayKhoiChieu: string;
 
   @Column()

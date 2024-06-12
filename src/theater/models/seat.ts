@@ -1,9 +1,9 @@
 import { IsString } from "class-validator";
 
-export class UserLogIn{
+export class Seat{
     @IsString()
-    taiKhoan: string;
+    soGhe: string;
 
     @IsString()
-    matKhau: string;  
+    userId: string;  
 }

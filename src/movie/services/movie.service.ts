@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ENTITIES } from '../../constants/constants';
 import { Repository } from 'typeorm';
-import { MovieEntity } from '../entities/movie.entity';
+import { MOVIE_ENTITIES } from '../../constants/constants';
 import { BannerEntity } from '../entities/banner.entity';
+import { MovieEntity } from '../entities/movie.entity';
 
 @Injectable()
 export class MovieService {
   constructor(
-    @InjectRepository(ENTITIES.MovieEntity)
+    @InjectRepository(MOVIE_ENTITIES.MovieEntity)
     private movieRepository: Repository<MovieEntity>,
-    @InjectRepository(ENTITIES.BannerEntity)
+    @InjectRepository(MOVIE_ENTITIES.BannerEntity)
     private bannerRepository: Repository<BannerEntity>,
   ) {}
 
@@ -25,5 +25,9 @@ export class MovieService {
 
   async getMovies() {
     return await this.movieRepository.find();
+  }
+
+  async getMovieById(id: string) {
+    return await this.movieRepository.findOne({ where: { maPhim: id } });
   }
 }

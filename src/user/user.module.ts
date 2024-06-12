@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { UserController } from './user.controller';
-import { UserService } from './services/user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ENTITIES } from '../constants/constants';
+import { MOVIE_ENTITIES } from '../constants/constants';
+import { UserService } from './services/user.service';
+import { UserController } from './user.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ENTITIES.UserEntity])],
+  imports: [TypeOrmModule.forFeature([MOVIE_ENTITIES.UserEntity])],
   controllers: [UserController],
   providers: [UserService],
   exports: [UserService],
