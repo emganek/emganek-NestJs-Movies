@@ -12,7 +12,6 @@ export class TheaterScheduleEntity {
   rap: string;
 
   @ManyToOne(() => MovieEntity)
-  @Column()
   phim: string;
 
   @Column()

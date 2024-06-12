@@ -2,9 +2,11 @@ import {
   Column,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn
 } from 'typeorm';
 import { TheaterChainEntity } from './theater-chain.entity';
+import { TheaterScheduleEntity } from './theater-schedule.entity';
 
 @Entity()
 export class TheaterLocationEntity {
@@ -22,4 +24,7 @@ export class TheaterLocationEntity {
 
   @ManyToOne(() => TheaterChainEntity)
   heThongRap: string;
+
+  @OneToMany(() =>TheaterScheduleEntity, schedule => schedule.rap )
+  suatChieu: TheaterScheduleEntity[];
 }

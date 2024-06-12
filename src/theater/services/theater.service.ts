@@ -66,47 +66,35 @@ export class TheaterService {
     return await this.theaterScheduleRepository.save(schedule);
   }
 
+  // async getShowTimeByMovieCode(movieCode: string) {
+  //   const movie = await this.movieService.getMovieById(movieCode);
+
+  //   return await this.theaterScheduleRepository
+  //     .createQueryBuilder('schedule')
+  //     .where(
+  //       'schedule.phim = :phimId', {phimId: movie.id}
+  //     )
+  //     .leftJoinAndMapOne('schedule.phim', MovieEntity,'phim', 'phim.id = schedule.phimId')
+  //     .leftJoinAndMapOne('schedule.rap', TheaterLocationEntity ,'rap', 'rap.id = schedule.rapId')
+  //     .select([
+  //       'schedule.ngayChieuGioChieu',
+  //       'phim.id',
+  //       'phim.tenPhim',
+  //       'rap.id',
+  //       'rap.tenRap'
+  //     ])
+  //     .orderBy('schedule.ngayChieuGioChieu', "DESC")
+  //     .getMany();
+  // }
+
   async getShowTimeByMovieCode(movieCode: string) {
     const movie = await this.movieService.getMovieById(movieCode);
 
-    return await this.theaterScheduleRepository
-      .createQueryBuilder('schedule')
-      .where(
-        'schedule.phim = :phimId', {phimId: movie.id}
-      )
-      .leftJoinAndMapOne('schedule.phim', MovieEntity,'phim', 'phim.id = schedule.phimId')
-      .leftJoinAndMapOne('schedule.rap', TheaterLocationEntity ,'rap', 'rap.id = schedule.rapId')
-      .select([
-        'schedule.ngayChieuGioChieu',
-        'phim.id',
-        'phim.tenPhim',
-        'rap.id',
-        'rap.tenRap'
-      ])
-      .orderBy('schedule.ngayChieuGioChieu', "DESC")
+    return await this.theaterLocationRepository
+      .createQueryBuilder('theater')
+      .leftJoinAndMapOne('theater.suatChieu', TheaterScheduleEntity, 'schedule', `schedule.phimId = ${movie.id}`)
+      .groupBy('theater.heThongRapId')
       .getMany();
-
-  //   return await this.theaterScheduleRepository.query(`
-  //   SELECT 
-  //     schedule.ngayChieuGioChieu,
-  //     phim.id AS phim_id,
-  //     phim.tenPhim AS phim_tenPhim,
-  //     rap.id AS rap_id,
-  //     rap.tenRap AS rap_tenRap
-  //   FROM 
-  //     movies.theater_schedule_entity schedule
-  //   LEFT JOIN 
-  //     movie_entity AS phim ON phim.id = schedule.phimId
-  //   LEFT JOIN 
-  //     theater_location_entity AS rap ON rap.id = schedule.rapId
-  //   WHERE 
-  //     schedule.phim = ${movie.id}
-  //   ORDER BY 
-  //     schedule.ngayChieuGioChieu DESC
-  //   GROUP BY
-  //   	rap.id 
-  // `);
-
   }
 
   private async checkShowtimeAvailable(date: string | Date, rapId: string, phimId:string) {
