@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { TheaterLocationEntity } from './theater-location.entity';
 
 @Entity()
 export class TheaterChainEntity {
@@ -13,4 +14,7 @@ export class TheaterChainEntity {
 
   @Column({ type: 'varchar' })
   logo: string;
+
+  @OneToMany(() =>TheaterLocationEntity, location => location.heThongRap )
+  heThongRap: TheaterLocationEntity[];
 }

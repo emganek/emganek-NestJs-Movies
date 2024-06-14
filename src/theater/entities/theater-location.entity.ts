@@ -22,6 +22,9 @@ export class TheaterLocationEntity {
   @Column()
   diaChi: string;
 
+  @Column()
+  hinhAnh: string;
+
   @ManyToOne(() => TheaterChainEntity)
   heThongRap: string;
 

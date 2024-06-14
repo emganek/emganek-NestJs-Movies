@@ -90,11 +90,12 @@ export class TheaterService {
   async getShowTimeByMovieCode(movieCode: string) {
     const movie = await this.movieService.getMovieById(movieCode);
 
-    return await this.theaterLocationRepository
-      .createQueryBuilder('theater')
-      .leftJoinAndMapOne('theater.suatChieu', TheaterScheduleEntity, 'schedule', `schedule.phimId = ${movie.id}`)
-      .groupBy('theater.heThongRapId')
-      .getMany();
+      return await this.theaterChainRepository
+      .createQueryBuilder('theaterChain')
+      .leftJoinAndMapMany('theaterChain.heThongRap', TheaterLocationEntity, 'theater', `theaterChain.id = theater.heThongRapid`)
+      .leftJoinAndMapMany('theater.suatChieu', TheaterScheduleEntity, 'schedule', `schedule.phimId = ${movie.id} && schedule.rapId = theater.id`)
+      .leftJoinAndMapOne('theater.phim', MovieEntity, 'movie',  `movie.id = ${movie.id}`)
+      .getMany()
   }
 
   private async checkShowtimeAvailable(date: string | Date, rapId: string, phimId:string) {
@@ -116,3 +117,142 @@ export class TheaterService {
       return !showtime;
   }
 }
+
+
+[
+  {
+      "id": 1,
+      "maRap": "cgv_hung_vuong",
+      "tenRap": "CGV Hùng Vương Plaza",
+      "diaChi": "Tầng 7 | Hùng Vương Plaza, 126 Hồng Bàng, Phường 12, Quận 5, TP. Hồ Chí Minh.",
+      "suatChieu": {
+          "id": 32,
+          "giaVe": 75000,
+          "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
+          "danhSachChoNgoi": []
+      },
+      "phim": {
+          "id": 3,
+          "maPhim": "c22",
+          "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
+          "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
+          "moTa": "Minions: Sự Trỗi Dậy của Gru",
+          "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
+          "ngayKhoiChieu": "2024-01-01",
+          "dangChieu": true
+      }
+  },
+  {
+      "id": 2,
+      "maRap": "cgv_vivo",
+      "tenRap": "CGV Vivo City",
+      "diaChi": "Lầu 5, Trung tâm thương mại SC VivoCity - 1058 Nguyễn Văn Linh, Quận 7",
+      "suatChieu": {
+          "id": 32,
+          "giaVe": 75000,
+          "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
+          "danhSachChoNgoi": []
+      },
+      "phim": {
+          "id": 3,
+          "maPhim": "c22",
+          "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
+          "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
+          "moTa": "Minions: Sự Trỗi Dậy của Gru",
+          "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
+          "ngayKhoiChieu": "2024-01-01",
+          "dangChieu": true
+      }
+  },
+  {
+      "id": 3,
+      "maRap": "bhd_garden",
+      "tenRap": "BHD STAR THE GARDEN",
+      "diaChi": "Tầng 4, TTTM Garden Shopping Center, Phố Mễ Trì, P.Mỹ Đình 1, Quận Nam Từ Liêm, Hà Nội",
+      "suatChieu": {
+          "id": 32,
+          "giaVe": 75000,
+          "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
+          "danhSachChoNgoi": []
+      },
+      "phim": {
+          "id": 3,
+          "maPhim": "c22",
+          "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
+          "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
+          "moTa": "Minions: Sự Trỗi Dậy của Gru",
+          "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
+          "ngayKhoiChieu": "2024-01-01",
+          "dangChieu": true
+      }
+  }
+]
+
+// [
+//   {
+//       "id": 1,
+//       "maRap": "cgv_hung_vuong",
+//       "tenRap": "CGV Hùng Vương Plaza",
+//       "diaChi": "Tầng 7 | Hùng Vương Plaza, 126 Hồng Bàng, Phường 12, Quận 5, TP. Hồ Chí Minh.",
+//       "suatChieu": {
+//           "id": 32,
+//           "giaVe": 75000,
+//           "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
+//           "danhSachChoNgoi": []
+//       },
+//       "phim": {
+//           "id": 3,
+//           "maPhim": "c22",
+//           "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
+//           "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
+//           "moTa": "Minions: Sự Trỗi Dậy của Gru",
+//           "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
+//           "ngayKhoiChieu": "2024-01-01",
+//           "dangChieu": true
+//       }
+//   },
+//   {
+//       "id": 2,
+//       "maRap": "cgv_vivo",
+//       "tenRap": "CGV Vivo City",
+//       "diaChi": "Lầu 5, Trung tâm thương mại SC VivoCity - 1058 Nguyễn Văn Linh, Quận 7",
+//       "suatChieu": {
+//           "id": 32,
+//           "giaVe": 75000,
+//           "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
+//           "danhSachChoNgoi": []
+//       },
+//       "phim": {
+//           "id": 3,
+//           "maPhim": "c22",
+//           "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
+//           "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
+//           "moTa": "Minions: Sự Trỗi Dậy của Gru",
+//           "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
+//           "ngayKhoiChieu": "2024-01-01",
+//           "dangChieu": true
+//       }
+//   },
+//   {
+//       "id": 3,
+//       "maRap": "bhd_garden",
+//       "tenRap": "BHD STAR THE GARDEN",
+//       "diaChi": "Tầng 4, TTTM Garden Shopping Center, Phố Mễ Trì, P.Mỹ Đình 1, Quận Nam Từ Liêm, Hà Nội",
+//       "suatChieu": {
+//           "id": 32,
+//           "giaVe": 75000,
+//           "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
+//           "danhSachChoNgoi": []
+//       },
+//       "phim": {
+//           "id": 3,
+//           "maPhim": "c22",
+//           "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
+//           "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
+//           "moTa": "Minions: Sự Trỗi Dậy của Gru",
+//           "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
+//           "ngayKhoiChieu": "2024-01-01",
+//           "dangChieu": true
+//       }
+//   }
+// ]

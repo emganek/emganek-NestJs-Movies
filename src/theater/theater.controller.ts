@@ -45,7 +45,9 @@ export class TheaterController {
   async getShowTimeByMovieId(@Query('MaPhim') movieCode: string) {
     const schedule = await this.theaterService.getShowTimeByMovieCode(movieCode);
     return {
-      content: schedule,
+      content:  {
+        heThongRapChieu: schedule 
+      },
     };
   }
 }
