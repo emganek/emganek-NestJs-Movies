@@ -1,9 +1,21 @@
-import { IsString } from "class-validator";
+import { IsString } from 'class-validator';
 
-export class Seat{
-    @IsString()
-    soGhe: string;
+export class Seat {
+  soGhe: number;
 
-    @IsString()
-    userId: string;  
+  userId: string;
+
+  loaiGhe: 'vip' | 'thuong';
+
+  daDat: boolean;
+
+  giaVe: number;
+
+  constructor(_soGhe, _giaVe, _loaiGhe: any = 'thuong') {
+    this.soGhe = _soGhe;
+    this.giaVe = _giaVe;
+    this.loaiGhe = _loaiGhe;
+    this.daDat = false;
+    this.userId = '';
+  }
 }

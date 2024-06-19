@@ -10,6 +10,9 @@ import { Showtime } from '../models/showtime';
 import { addHours, format } from 'date-fns';
 import { DateHelper } from '../../helpers/helper';
 import { MovieEntity } from '../../movie/entities/movie.entity';
+import { Seat } from '../models/seat';
+import { Booking, BookingSeat } from '../models/booking';
+import { UserEntity } from '../../user/entities/user.entity';
 
 @Injectable()
 export class TheaterService {
@@ -60,32 +63,12 @@ export class TheaterService {
       phim: movie.id,
       giaVe: data.giaVe,
       ngayChieuGioChieu: DateHelper.parseDate(data.ngayChieuGioChieu),
-      danhSachChoNgoi: [],
+      danhSachChoNgoi: this.generateSeats(data.giaVe),
+      users: []
     };
 
     return await this.theaterScheduleRepository.save(schedule);
   }
-
-  // async getShowTimeByMovieCode(movieCode: string) {
-  //   const movie = await this.movieService.getMovieById(movieCode);
-
-  //   return await this.theaterScheduleRepository
-  //     .createQueryBuilder('schedule')
-  //     .where(
-  //       'schedule.phim = :phimId', {phimId: movie.id}
-  //     )
-  //     .leftJoinAndMapOne('schedule.phim', MovieEntity,'phim', 'phim.id = schedule.phimId')
-  //     .leftJoinAndMapOne('schedule.rap', TheaterLocationEntity ,'rap', 'rap.id = schedule.rapId')
-  //     .select([
-  //       'schedule.ngayChieuGioChieu',
-  //       'phim.id',
-  //       'phim.tenPhim',
-  //       'rap.id',
-  //       'rap.tenRap'
-  //     ])
-  //     .orderBy('schedule.ngayChieuGioChieu', "DESC")
-  //     .getMany();
-  // }
 
   async getShowTimeByMovieCode(movieCode: string) {
     const movie = await this.movieService.getMovieById(movieCode);
@@ -96,6 +79,38 @@ export class TheaterService {
       .leftJoinAndMapMany('theater.suatChieu', TheaterScheduleEntity, 'schedule', `schedule.phimId = ${movie.id} && schedule.rapId = theater.id`)
       .leftJoinAndMapOne('theater.phim', MovieEntity, 'movie',  `movie.id = ${movie.id}`)
       .getMany()
+  }
+
+  async getInformationForBooking(scheduleId: string) {
+      return await this.theaterScheduleRepository
+      .createQueryBuilder('schedule')
+      .where('schedule.id = :id', {id: scheduleId})
+      .leftJoinAndMapOne('schedule.rap', TheaterLocationEntity, 'theater', `theater.id = schedule.rapId`)
+      .leftJoinAndMapOne('schedule.phim', MovieEntity, 'movie',  `movie.id = schedule.phimId`)
+      .getOne()
+  }
+
+  async bookingSchedule(userLoggedIn: UserEntity, bookingData: Booking) {
+    const showtime = await this.theaterScheduleRepository
+      .createQueryBuilder('schedule')
+      .where('schedule.id = :id', {id: bookingData.maLichChieu})
+      .getOne();
+
+      bookingData.danhSachVe.forEach((seat: BookingSeat, index: number) =>{
+        const selectedSeat = showtime.danhSachChoNgoi[seat.soGhe - 1];
+        selectedSeat.daDat = true;
+        selectedSeat.userId = userLoggedIn.id;
+      })
+
+      const index = showtime.users?.findIndex(user => user.id === userLoggedIn.id);
+
+      if (!index){
+        showtime.users = showtime.users ?? [];
+        showtime.users.push(userLoggedIn);
+      }
+
+      return await this.theaterScheduleRepository.save(showtime);
+
   }
 
   private async checkShowtimeAvailable(date: string | Date, rapId: string, phimId:string) {
@@ -116,143 +131,16 @@ export class TheaterService {
 
       return !showtime;
   }
+
+  private generateSeats(cost: number, numberSeats = 160,): Seat[]{
+    const seats:any = [];
+    for (let i = 1; i <= numberSeats; i++){
+      const loaiGhe =  i > 32 && i < 129 ? 'vip' : 'thuong';
+      const giaVe = loaiGhe === 'vip' ? Math.floor(cost + (cost *20)/100) : cost;
+      seats.push(new Seat(i, giaVe,loaiGhe));
+    }
+
+    return [...seats];
+  }
 }
 
-
-[
-  {
-      "id": 1,
-      "maRap": "cgv_hung_vuong",
-      "tenRap": "CGV Hùng Vương Plaza",
-      "diaChi": "Tầng 7 | Hùng Vương Plaza, 126 Hồng Bàng, Phường 12, Quận 5, TP. Hồ Chí Minh.",
-      "suatChieu": {
-          "id": 32,
-          "giaVe": 75000,
-          "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
-          "danhSachChoNgoi": []
-      },
-      "phim": {
-          "id": 3,
-          "maPhim": "c22",
-          "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
-          "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
-          "moTa": "Minions: Sự Trỗi Dậy của Gru",
-          "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
-          "ngayKhoiChieu": "2024-01-01",
-          "dangChieu": true
-      }
-  },
-  {
-      "id": 2,
-      "maRap": "cgv_vivo",
-      "tenRap": "CGV Vivo City",
-      "diaChi": "Lầu 5, Trung tâm thương mại SC VivoCity - 1058 Nguyễn Văn Linh, Quận 7",
-      "suatChieu": {
-          "id": 32,
-          "giaVe": 75000,
-          "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
-          "danhSachChoNgoi": []
-      },
-      "phim": {
-          "id": 3,
-          "maPhim": "c22",
-          "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
-          "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
-          "moTa": "Minions: Sự Trỗi Dậy của Gru",
-          "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
-          "ngayKhoiChieu": "2024-01-01",
-          "dangChieu": true
-      }
-  },
-  {
-      "id": 3,
-      "maRap": "bhd_garden",
-      "tenRap": "BHD STAR THE GARDEN",
-      "diaChi": "Tầng 4, TTTM Garden Shopping Center, Phố Mễ Trì, P.Mỹ Đình 1, Quận Nam Từ Liêm, Hà Nội",
-      "suatChieu": {
-          "id": 32,
-          "giaVe": 75000,
-          "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
-          "danhSachChoNgoi": []
-      },
-      "phim": {
-          "id": 3,
-          "maPhim": "c22",
-          "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
-          "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
-          "moTa": "Minions: Sự Trỗi Dậy của Gru",
-          "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
-          "ngayKhoiChieu": "2024-01-01",
-          "dangChieu": true
-      }
-  }
-]
-
-// [
-//   {
-//       "id": 1,
-//       "maRap": "cgv_hung_vuong",
-//       "tenRap": "CGV Hùng Vương Plaza",
-//       "diaChi": "Tầng 7 | Hùng Vương Plaza, 126 Hồng Bàng, Phường 12, Quận 5, TP. Hồ Chí Minh.",
-//       "suatChieu": {
-//           "id": 32,
-//           "giaVe": 75000,
-//           "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
-//           "danhSachChoNgoi": []
-//       },
-//       "phim": {
-//           "id": 3,
-//           "maPhim": "c22",
-//           "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
-//           "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
-//           "moTa": "Minions: Sự Trỗi Dậy của Gru",
-//           "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
-//           "ngayKhoiChieu": "2024-01-01",
-//           "dangChieu": true
-//       }
-//   },
-//   {
-//       "id": 2,
-//       "maRap": "cgv_vivo",
-//       "tenRap": "CGV Vivo City",
-//       "diaChi": "Lầu 5, Trung tâm thương mại SC VivoCity - 1058 Nguyễn Văn Linh, Quận 7",
-//       "suatChieu": {
-//           "id": 32,
-//           "giaVe": 75000,
-//           "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
-//           "danhSachChoNgoi": []
-//       },
-//       "phim": {
-//           "id": 3,
-//           "maPhim": "c22",
-//           "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
-//           "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
-//           "moTa": "Minions: Sự Trỗi Dậy của Gru",
-//           "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
-//           "ngayKhoiChieu": "2024-01-01",
-//           "dangChieu": true
-//       }
-//   },
-//   {
-//       "id": 3,
-//       "maRap": "bhd_garden",
-//       "tenRap": "BHD STAR THE GARDEN",
-//       "diaChi": "Tầng 4, TTTM Garden Shopping Center, Phố Mễ Trì, P.Mỹ Đình 1, Quận Nam Từ Liêm, Hà Nội",
-//       "suatChieu": {
-//           "id": 32,
-//           "giaVe": 75000,
-//           "ngayChieuGioChieu": "2024-06-10T13:00:00.000Z",
-//           "danhSachChoNgoi": []
-//       },
-//       "phim": {
-//           "id": 3,
-//           "maPhim": "c22",
-//           "tenPhim": "Minions: Sự Trỗi Dậy của Gru",
-//           "hinhAnh": "https://media-cdn-v2.laodong.vn/storage/newsportal/2022/7/13/1067935/Minions-1-T-01.jpg?w=660",
-//           "moTa": "Minions: Sự Trỗi Dậy của Gru",
-//           "trailer": "https://www.youtube.com/embed/dTQXlDV16SY?si=pfybhbMZfKlnOzcH",
-//           "ngayKhoiChieu": "2024-01-01",
-//           "dangChieu": true
-//       }
-//   }
-// ]

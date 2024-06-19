@@ -1,7 +1,8 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Seat } from '../models/seat';
 import { TheaterLocationEntity } from './theater-location.entity';
 import { MovieEntity } from '../../movie/entities/movie.entity';
+import { UserEntity } from '../../user/entities/user.entity';
 
 @Entity()
 export class TheaterScheduleEntity {
@@ -22,4 +23,8 @@ export class TheaterScheduleEntity {
 
   @Column({ type: 'json', nullable: true })
   danhSachChoNgoi: Seat[];
+
+  @ManyToMany(() => UserEntity)
+  @JoinTable()
+  users: UserEntity[]
 }

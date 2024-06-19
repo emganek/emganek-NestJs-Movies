@@ -8,7 +8,6 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 export class UserController {
     constructor(private userService: UserService){}
 
-    @UseGuards(AuthGuard)
     @Get()
     async getUsers(){
         const result = await this.userService.getUsers();

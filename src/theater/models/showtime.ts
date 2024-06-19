@@ -1,4 +1,4 @@
-import { IsDate, IsDateString, IsNumber, IsString } from "class-validator";
+import { IsDateString, IsNumber, IsString } from "class-validator";
 
 export class Showtime{
     @IsString()

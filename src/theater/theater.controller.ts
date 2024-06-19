@@ -6,9 +6,12 @@ import {
   HttpStatus,
   Post,
   Query,
+  Req,
 } from '@nestjs/common';
 import { Showtime } from './models/showtime';
 import { TheaterService } from './services/theater.service';
+import { Seat } from './models/seat';
+import { Booking } from './models/booking';
 
 @Controller('/api/theater/')
 export class TheaterController {
@@ -48,6 +51,24 @@ export class TheaterController {
       content:  {
         heThongRapChieu: schedule 
       },
+    };
+  }
+
+  
+  @Get('booking')
+  async getInformationForBooking(@Query('MaLichChieu') scheduleId: string) {
+    const info = await this.theaterService.getInformationForBooking(scheduleId);
+    return {
+      content:  info
+    };
+  }
+
+  @Post('booking')
+  async bookingSchedule(@Body() body: Booking, @Req() request:Request) {
+    const info = await this.theaterService.bookingSchedule(request['user'], body);
+    
+    return {
+      content:  null
     };
   }
 }

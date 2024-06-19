@@ -1,10 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
 import { UserRole } from '../../enums/enums';
+import { TheaterScheduleEntity } from '../../theater/entities/theater-schedule.entity';
 
 @Entity()
 export class UserEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @Column()
   taiKhoan: string;
@@ -27,4 +28,7 @@ export class UserEntity {
     default: UserRole.NguoiDung
   })
   maLoaiNguoiDung: string;
+
+  @ManyToMany(() => TheaterScheduleEntity)
+  lichChieu: TheaterScheduleEntity[]
 }
