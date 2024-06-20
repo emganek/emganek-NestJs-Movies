@@ -20,3 +20,25 @@ export class UpdateMyAccount {
     @IsNumber()
     maLoaiNguoiDung: number
 }
+export class UpdateUserAccount {
+    @IsNumber()
+    id: number;
+
+    @IsString()
+    taiKhoan: string;
+
+    @IsString()
+    hoTen: string;
+
+    @IsString()
+    matKhau: string;
+
+    @IsNumberString()
+    soDt: string;
+
+    @IsEmail()
+    email: string;  
+
+    @IsNumber()
+    maLoaiNguoiDung: number
+}

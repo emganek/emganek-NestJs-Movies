@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/user.entity';
-import { Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { CreateUser } from '../models/create-user';
 import { UserRoleEntity } from '../entities/user-role.entity';
-import { UpdateMyAccount } from '../models/update-user';
+import { UpdateMyAccount, UpdateUserAccount } from '../models/update-user';
 import { TheaterScheduleEntity } from '../../theater/entities/theater-schedule.entity';
 
 @Injectable()
@@ -16,8 +16,14 @@ export class UserService {
     private userRoleRepository: Repository<UserRoleEntity>
   ) {}
 
-  async getUsers() {
-    return await this.userRepository.createQueryBuilder('user').getMany();
+  async getUsersByName(fullName: string) {
+    const queryBuilder = this.userRepository.createQueryBuilder('user').leftJoinAndSelect('user.maLoaiNguoiDung', 'role');
+
+    if (fullName){
+      queryBuilder.where('LOWER(user.hoTen) LIKE LOWER(:name)',{ name: `%${fullName}%` });
+    }
+   
+    return await queryBuilder.getMany();
   }
 
   async getUserByAccountName(
@@ -31,7 +37,7 @@ export class UserService {
   }
 
   async updateUserAccount(
-    userData: UpdateMyAccount,
+    userData: UpdateUserAccount | UpdateMyAccount,
   ): Promise<undefined | UpdateResult> {
     return await this.userRepository
       .createQueryBuilder()
@@ -68,6 +74,17 @@ export class UserService {
       })
 
       return bookedMovies.lichChieu;
+  }
+
+  async deleteAccount(
+    taiKhoan: string,
+  ): Promise<undefined | DeleteResult> {
+    return await this.userRepository
+    .createQueryBuilder()
+    .delete()
+    .from(UserEntity)
+    .where("taiKhoan = :taiKhoan", { taiKhoan })
+    .execute();
   }
 
   create(body: CreateUser): Promise<UserEntity> {
