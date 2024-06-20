@@ -1,14 +1,22 @@
-import { IsEmail, IsString } from "class-validator";
-export class UpdateUserDto {
-    @IsString()
-    name: string;
+import { IsEmail, IsNumber, IsNumberString, IsString } from "class-validator";
+export class UpdateMyAccount {
+    id?: number;
 
     @IsString()
-    gender: string;
+    taiKhoan: string;
+
+    @IsString()
+    hoTen: string;
+
+    @IsString()
+    matKhau: string;
+
+    @IsNumberString()
+    soDt: string;
 
     @IsEmail()
-    email: string;
+    email: string;  
 
-    @IsString()
-    password: string
+    @IsNumber()
+    maLoaiNguoiDung: number
 }

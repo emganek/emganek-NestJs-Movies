@@ -90,6 +90,15 @@ export class TheaterService {
       .getOne()
   }
 
+//   async getBookedMoviesByUserId(userId: string) {
+//     return await this.theaterScheduleRepository
+//     .createQueryBuilder('schedule')
+//     .where('schedule.id = :id', {id: scheduleId})
+//     .leftJoinAndMapOne('schedule.rap', TheaterLocationEntity, 'theater', `theater.id = schedule.rapId`)
+//     .leftJoinAndMapOne('schedule.phim', MovieEntity, 'movie',  `movie.id = schedule.phimId`)
+//     .getOne()
+// }
+
   async bookingSchedule(userLoggedIn: UserEntity, bookingData: Booking) {
     const showtime = await this.theaterScheduleRepository
       .createQueryBuilder('schedule')

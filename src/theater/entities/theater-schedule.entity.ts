@@ -24,7 +24,7 @@ export class TheaterScheduleEntity {
   @Column({ type: 'json', nullable: true })
   danhSachChoNgoi: Seat[];
 
-  @ManyToMany(() => UserEntity)
+  @ManyToMany(() => UserEntity, user => user.lichChieu)
   @JoinTable()
   users: UserEntity[]
 }

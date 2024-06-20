@@ -3,10 +3,12 @@ import { MovieEntity } from '../movie/entities/movie.entity';
 import { TheaterChainEntity } from '../theater/entities/theater-chain.entity';
 import { TheaterLocationEntity } from '../theater/entities/theater-location.entity';
 import { TheaterScheduleEntity } from '../theater/entities/theater-schedule.entity';
+import { UserRoleEntity } from '../user/entities/user-role.entity';
 import { UserEntity } from '../user/entities/user.entity';
 
 export const MOVIE_ENTITIES = {
   UserEntity,
+  UserRoleEntity,
   MovieEntity,
   BannerEntity,
   TheaterChainEntity,

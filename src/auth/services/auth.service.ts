@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/services/user.service';
 import { UserLogIn } from '../models/auth';
+import { UserEntity } from '../../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -25,12 +26,22 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
+    const payload = {
+      taiKhoan: user.taiKhoan,
+      matKhau: user.matKhau,
+      email: user.email,
+      hoTen: user.hoTen,
+      soDt: user.soDt,
+      maLoaiNguoiDung: user.maLoaiNguoiDung,
+      id: user.id
+    };
+
     return {
       content: {
         hoTen: user.hoTen,
         email: user.email,
         maLoaiNguoiDung: user.maLoaiNguoiDung,
-        accessToken: await this.jwtService.signAsync(user),
+        accessToken: await this.jwtService.signAsync(payload),
       },
     };
   }
