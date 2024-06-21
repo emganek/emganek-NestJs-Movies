@@ -6,6 +6,7 @@ import { CreateUser } from '../models/create-user';
 import { UserRoleEntity } from '../entities/user-role.entity';
 import { UpdateMyAccount, UpdateUserAccount } from '../models/update-user';
 import { TheaterScheduleEntity } from '../../theater/entities/theater-schedule.entity';
+import { Helper } from '../../helpers/helper';
 
 @Injectable()
 export class UserService {
@@ -70,6 +71,8 @@ export class UserService {
       bookedMovies.lichChieu.map(schedule =>{
         schedule.danhSachChoNgoi = schedule.danhSachChoNgoi.filter(seat => seat.userId == userId)
 
+        schedule.phim.hinhAnh = Helper.convertBufferToBase64(schedule.phim.hinhAnh) as any; 
+        
         return schedule
       })
 
