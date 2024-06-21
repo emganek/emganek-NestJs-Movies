@@ -59,8 +59,8 @@ export class TheaterService {
     }
 
     const schedule: TheaterScheduleEntity = {
-      rap: theaterLocation.id,
-      phim: movie.id,
+      rapId: theaterLocation.id,
+      phimId: movie.id,
       giaVe: data.giaVe,
       ngayChieuGioChieu: DateHelper.parseDate(data.ngayChieuGioChieu),
       danhSachChoNgoi: this.generateSeats(data.giaVe),

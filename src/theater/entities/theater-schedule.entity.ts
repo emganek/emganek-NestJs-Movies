@@ -10,10 +10,16 @@ export class TheaterScheduleEntity {
   id?: number;
 
   @ManyToOne(() => TheaterLocationEntity)
-  rap: string;
+  rap?: TheaterLocationEntity;
+
+  @Column({nullable: true})
+  rapId: string;
 
   @ManyToOne(() => MovieEntity)
-  phim: string;
+  phim?: MovieEntity;
+
+  @Column({nullable: true})
+  phimId: string;
 
   @Column()
   giaVe: number;

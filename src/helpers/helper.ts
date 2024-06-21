@@ -30,3 +30,14 @@ export class DateHelper {
     );
   }
 }
+
+
+export class Helper {
+  static convertBufferToBase64(data: Buffer): string{
+    return 'data:image/png;base64,' + data.toString('base64');
+  }
+
+  static parseBooleanStringToBoolean(data: string): boolean{
+    return data === 'true';
+  }
+}

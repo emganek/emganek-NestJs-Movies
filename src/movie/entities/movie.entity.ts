@@ -11,8 +11,8 @@ export class MovieEntity {
   @Column()
   tenPhim: string;
 
-  @Column()
-  hinhAnh: string;
+  @Column({type: 'mediumblob'})
+  hinhAnh: Buffer;
 
   @Column()
   moTa: string;
@@ -20,9 +20,18 @@ export class MovieEntity {
   @Column()
   trailer: string;
 
-  @Column({type: 'date', default: '2024-01-01'})
+  @Column({ type: 'date', default: '2024-01-01' })
   ngayKhoiChieu: string;
 
-  @Column()
+  @Column({ default: false })
   dangChieu: boolean;
+
+  @Column({ default: false })
+  sapChieu: boolean;
+
+  @Column({ default: false })
+  hot: boolean;
+
+  @Column()
+  danhGia: number;
 }
