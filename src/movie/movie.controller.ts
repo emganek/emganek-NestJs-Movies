@@ -19,6 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateMovie } from './models/update-movie';
 import { MovieEntity } from './entities/movie.entity';
 import { DateHelper, Helper } from '../helpers/helper';
+import { CreateMovie } from './models/create-movie';
 
 @Controller('api/movie/')
 export class MovieController {
@@ -35,8 +36,8 @@ export class MovieController {
 
   @WithoutLogIn()
   @Get()
-  async getAllMovies() {
-    const movies = await this.movieService.getMovies();
+  async getAllMovies(@Query('tenPhim') name: string) {
+    const movies = await this.movieService.getMoviesByName(name);
 
     return {
       content: movies,
@@ -63,6 +64,26 @@ export class MovieController {
   }
 
   @UseGuards(AuthzGuard)
+  @Put()
+  @UseInterceptors(FileInterceptor('File'))
+  async createMovie(
+    @UploadedFile(
+    )
+    file: Express.Multer.File,
+    @Body() body: CreateMovie,
+  ) {
+    let data:MovieEntity = {...body, ngayKhoiChieu: DateHelper.convertToDatabaseFormat(body.ngayKhoiChieu), hot: Helper.parseBooleanStringToBoolean(body.hot), dangChieu: Helper.parseBooleanStringToBoolean(body.dangChieu), sapChieu: Helper.parseBooleanStringToBoolean(body.sapChieu)} as any;
+
+    if (file) data = {...data, hinhAnh: file.buffer} as any;
+
+    const result = await this.movieService.createMovie(data);
+
+    return {
+      content: result,
+    };
+  }
+
+  @UseGuards(AuthzGuard)
   @Post()
   @UseInterceptors(FileInterceptor('File'))
   async updateMovieById(
@@ -71,7 +92,6 @@ export class MovieController {
     file: Express.Multer.File,
     @Body() body: UpdateMovie,
   ) {
-    console.log(typeof body.hot === 'boolean');
     let data:MovieEntity = {...body, ngayKhoiChieu: DateHelper.convertToDatabaseFormat(body.ngayKhoiChieu), hot: Helper.parseBooleanStringToBoolean(body.hot), dangChieu: Helper.parseBooleanStringToBoolean(body.dangChieu), sapChieu: Helper.parseBooleanStringToBoolean(body.sapChieu)} as any;
 
     if (file) data = {...data, hinhAnh: file.buffer} as any;

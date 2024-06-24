@@ -30,16 +30,6 @@ export class MovieService {
     return banners;
   }
 
-  async getMovies() {
-    const movies = await this.movieRepository.find();
-
-    movies.forEach(movie =>{
-      movie.hinhAnh = Helper.convertBufferToBase64(movie.hinhAnh) as any
-    })
-
-    return movies;
-  }
-
   async getMovieById(id: string) {
     const movie = await this.movieRepository.findOne({ where: { maPhim: id } });
 
@@ -57,6 +47,10 @@ export class MovieService {
       .execute();
   }
 
+  async createMovie(movieData: MovieEntity) {
+    return await this.movieRepository.save(movieData);
+  }
+
   async updateMovieById(id: string, movieData: MovieEntity) {
     return await this.movieRepository
       .createQueryBuilder()
@@ -64,5 +58,21 @@ export class MovieService {
       .set(movieData as any)
       .where('id = :id', {id})
       .execute();
+  }
+
+  async getMoviesByName(tenPhim: string){
+    const queryBuilder = this.movieRepository.createQueryBuilder('movie');
+
+    if (tenPhim){
+      queryBuilder.where('LOWER(movie.tenPhim) LIKE LOWER(:name)',{ name: `%${tenPhim}%` });
+    }
+   
+    let movies = await queryBuilder.getMany();
+
+    movies.forEach(movie =>{
+      movie.hinhAnh = Helper.convertBufferToBase64(movie.hinhAnh) as any
+    })
+
+    return movies;
   }
 }
