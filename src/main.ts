@@ -4,11 +4,16 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({    
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true
-  });
+  app.enableCors(
+    {
+      origin: [
+        'http://hn-workspace.io.vn',
+        'http://www.hn-workspace.io.vn',
+      ],
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      credentials: true,
+    }
+  );
   app.useGlobalFilters();
   app.useGlobalPipes(
     new ValidationPipe({
