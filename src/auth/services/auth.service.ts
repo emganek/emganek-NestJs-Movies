@@ -1,8 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/services/user.service';
-import { UserLogIn } from '../models/auth';
-import { UserEntity } from '../../user/entities/user.entity';
+import {
+  UserLoggedInInfo,
+  UserLoggedInWithTokens,
+} from '../../user/models/user';
 
 @Injectable()
 export class AuthService {
@@ -11,37 +13,44 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  // async validateUser(email: string, password: string){
-  //     const user = await this.userService.findByEmail(email);
-  //     if (user && user.password === password) {
-  //         return user
-  //     }
-  //     return null
-  // }
+  async login(data: UserLoggedInInfo): Promise<UserLoggedInWithTokens> {
+    return {
+      id: data.id,
+      hoTen: data.hoTen,
+      taiKhoan: data.taiKhoan,
+      email: data.email,
+      maLoaiNguoiDung: data.maLoaiNguoiDung,
+      accessToken: await this.jwtService.signAsync(data),
+      hasRefreshToken: true,
+      refreshToken: await this.jwtService.signAsync(data, {
+        expiresIn: '3d',
+      }),
+    };
+  }
 
-  async login(data: UserLogIn) {
-    const user = await this.userService.getUserByAccountName(data.taiKhoan);
+  async validateUser(
+    taiKhoan: string,
+    matKhau: string,
+  ): Promise<UserLoggedInInfo> {
+    const user = await this.userService.getUserByAccountName(taiKhoan);
 
-    if (user?.matKhau !== data.matKhau) {
+    if (user?.matKhau !== matKhau) {
       throw new UnauthorizedException();
     }
 
-    const payload = {
+    return {
+      id: user.id,
       taiKhoan: user.taiKhoan,
-      matKhau: user.matKhau,
       email: user.email,
       hoTen: user.hoTen,
-      soDt: user.soDt,
       maLoaiNguoiDung: user.maLoaiNguoiDung,
-      id: user.id
     };
+  }
 
+  async getRefreshToken(data: UserLoggedInInfo) {
     return {
       content: {
-        hoTen: user.hoTen,
-        email: user.email,
-        maLoaiNguoiDung: user.maLoaiNguoiDung,
-        accessToken: await this.jwtService.signAsync(payload),
+        accessToken: await this.jwtService.signAsync(data),
       },
     };
   }

@@ -1,18 +1,18 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { addHours } from 'date-fns';
+import { Repository } from 'typeorm';
 import { MOVIE_ENTITIES } from '../../constants/constants';
+import { DateHelper } from '../../helpers/helper';
+import { MovieEntity } from '../../movie/entities/movie.entity';
 import { MovieService } from '../../movie/services/movie.service';
+import { UserEntity } from '../../user/entities/user.entity';
 import { TheaterChainEntity } from '../entities/theater-chain.entity';
 import { TheaterLocationEntity } from '../entities/theater-location.entity';
 import { TheaterScheduleEntity } from '../entities/theater-schedule.entity';
-import { Showtime } from '../models/showtime';
-import { addHours, format } from 'date-fns';
-import { DateHelper } from '../../helpers/helper';
-import { MovieEntity } from '../../movie/entities/movie.entity';
-import { Seat } from '../models/seat';
 import { Booking, BookingSeat } from '../models/booking';
-import { UserEntity } from '../../user/entities/user.entity';
+import { Seat } from '../models/seat';
+import { Showtime } from '../models/showtime';
 
 @Injectable()
 export class TheaterService {
@@ -78,6 +78,10 @@ export class TheaterService {
       .leftJoinAndMapMany('theaterChain.heThongRap', TheaterLocationEntity, 'theater', `theaterChain.id = theater.heThongRapid`)
       .leftJoinAndMapMany('theater.suatChieu', TheaterScheduleEntity, 'schedule', `schedule.phimId = ${movie.id} && schedule.rapId = theater.id`)
       .leftJoinAndMapOne('theater.phim', MovieEntity, 'movie',  `movie.id = ${movie.id}`)
+      .where('schedule.ngayChieuGioChieu >= :now', {now: new Date()})
+      .orderBy('schedule.ngayChieuGioChieu', "ASC")
+      .groupBy('theaterChain.id')
+      .having('COUNT(schedule.id) > 0')
       .getMany()
   }
 

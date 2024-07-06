@@ -2,16 +2,14 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Post,
   Query,
-  Req,
+  Req
 } from '@nestjs/common';
+import { WithoutLogIn } from '../system/decorators/auth.decorator';
+import { Booking } from './models/booking';
 import { Showtime } from './models/showtime';
 import { TheaterService } from './services/theater.service';
-import { Seat } from './models/seat';
-import { Booking } from './models/booking';
 
 @Controller('/api/theater/')
 export class TheaterController {
@@ -44,6 +42,7 @@ export class TheaterController {
     };
   }
 
+  @WithoutLogIn()
   @Get('showtime')
   async getShowTimeByMovieId(@Query('MaPhim') movieCode: string) {
     const schedule = await this.theaterService.getShowTimeByMovieCode(movieCode);

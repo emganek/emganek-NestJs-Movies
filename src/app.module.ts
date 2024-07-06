@@ -9,7 +9,6 @@ import { MovieModule } from './movie/movie.module';
 import { AppService } from './services/app.service';
 import { TheaterModule } from './theater/theater.module';
 import { UserModule } from './user/user.module';
-import { AuthzGuard } from './auth/guards/authz.guard';
 
 const getEntities = (entities: { [key: string]: any }): any[] => {
   return Object.keys(entities).map((key) => entities[key]);
