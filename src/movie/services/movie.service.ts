@@ -1,12 +1,10 @@
-import { Injectable, UseGuards } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MOVIE_ENTITIES } from '../../constants/constants';
+import { Helper } from '../../helpers/helper';
 import { BannerEntity } from '../entities/banner.entity';
 import { MovieEntity } from '../entities/movie.entity';
-import { AuthzGuard } from '../../auth/guards/authz.guard';
-import { UpdateMovie } from '../models/update-movie';
-import { Helper } from '../../helpers/helper';
 
 @Injectable()
 export class MovieService {
@@ -33,7 +31,9 @@ export class MovieService {
   async getMovieById(id: string) {
     const movie = await this.movieRepository.findOne({ where: { maPhim: id } });
 
-    movie.hinhAnh = Helper.convertBufferToBase64(movie.hinhAnh) as any;
+    if (movie) {
+      movie.hinhAnh = Helper.convertBufferToBase64(movie.hinhAnh) as any;
+    }
 
     return movie;
   }

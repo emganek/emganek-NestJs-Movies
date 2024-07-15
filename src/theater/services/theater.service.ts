@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { addHours } from 'date-fns';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { MOVIE_ENTITIES } from '../../constants/constants';
 import { DateHelper } from '../../helpers/helper';
 import { MovieEntity } from '../../movie/entities/movie.entity';
@@ -24,6 +24,7 @@ export class TheaterService {
     @InjectRepository(MOVIE_ENTITIES.TheaterScheduleEntity)
     private theaterScheduleRepository: Repository<TheaterScheduleEntity>,
     private movieService: MovieService,
+    private dataSource: DataSource,
   ) {}
 
   async getTheaterChains() {
@@ -52,22 +53,41 @@ export class TheaterService {
 
     const movie = await this.movieService.getMovieById(data.maPhim);
 
-    const isAvailable = await this.checkShowtimeAvailable(data.ngayChieuGioChieu, theaterLocation.id, movie.id);
+    let newSchedule: any
 
-    if (!isAvailable){
-      throw new HttpException('Not available time slot', HttpStatus.CONFLICT);
-    }
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    const schedule: TheaterScheduleEntity = {
-      rapId: theaterLocation.id,
-      phimId: movie.id,
-      giaVe: data.giaVe,
-      ngayChieuGioChieu: DateHelper.parseDate(data.ngayChieuGioChieu),
-      danhSachChoNgoi: this.generateSeats(data.giaVe),
-      users: []
-    };
+    try {
+      // execute some operations on this transaction:
+      const isAvailable = await this.checkShowtimeAvailable(data.ngayChieuGioChieu, theaterLocation.id, movie.id);
 
-    return await this.theaterScheduleRepository.save(schedule);
+      if (!isAvailable){
+        throw new HttpException('Not available time slot', HttpStatus.CONFLICT);
+      }
+  
+      const schedule: TheaterScheduleEntity = {
+        rapId: theaterLocation.id,
+        phimId: movie.id,
+        giaVe: data.giaVe,
+        ngayChieuGioChieu: DateHelper.parseDate(data.ngayChieuGioChieu),
+        danhSachChoNgoi: this.generateSeats(data.giaVe),
+        users: []
+      };
+
+      newSchedule = await this.theaterScheduleRepository.save(schedule)
+
+      await queryRunner.commitTransaction()
+  } catch (err) {
+      // since we have errors let's rollback changes we made
+      await queryRunner.rollbackTransaction()
+  } finally {
+      // you need to release query runner which is manually created:
+      await queryRunner.release()
+  }
+
+    return newSchedule;
   }
 
   async getShowTimeByMovieCode(movieCode: string) {

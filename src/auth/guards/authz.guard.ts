@@ -1,10 +1,10 @@
 import {
   CanActivate,
   ExecutionContext,
-  Injectable,
-  UnauthorizedException,
+  Injectable
 } from '@nestjs/common';
 import { UserRole } from '../../enums/enums';
+import { ForbiddenException } from '../../system/exceptions/forbidden.exception';
 
 @Injectable()
 export class AuthzGuard implements CanActivate {
@@ -16,7 +16,7 @@ export class AuthzGuard implements CanActivate {
     const role = request['user'].maLoaiNguoiDung.value;
 
     if (role !== UserRole.QuanTri){
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
 
     return true;
