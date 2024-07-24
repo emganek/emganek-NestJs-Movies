@@ -20,11 +20,14 @@ export class AuthService {
       taiKhoan: data.taiKhoan,
       email: data.email,
       maLoaiNguoiDung: data.maLoaiNguoiDung,
-      accessToken: await this.jwtService.signAsync(data),
+      accessToken: await this.jwtService.signAsync({ taiKhoan: data.taiKhoan }),
       hasRefreshToken: true,
-      refreshToken: await this.jwtService.signAsync(data, {
-        expiresIn: '3d',
-      }),
+      refreshToken: await this.jwtService.signAsync(
+        { taiKhoan: data.taiKhoan },
+        {
+          expiresIn: '3d',
+        },
+      ),
     };
   }
 

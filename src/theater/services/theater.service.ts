@@ -100,8 +100,6 @@ export class TheaterService {
       .leftJoinAndMapOne('theater.phim', MovieEntity, 'movie',  `movie.id = ${movie.id}`)
       .where('schedule.ngayChieuGioChieu >= :now', {now: new Date()})
       .orderBy('schedule.ngayChieuGioChieu', "ASC")
-      .groupBy('theaterChain.id')
-      .having('COUNT(schedule.id) > 0')
       .getMany()
   }
 
