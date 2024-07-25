@@ -1,7 +1,7 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard as AuthGuardPassport } from '@nestjs/passport';
-import { Observable } from 'rxjs';
+import { UserLoggedInWithTokens } from '../../user/models/user';
 
 @Injectable()
 export class RefreshTokenGuard extends AuthGuardPassport('jwt-refresh') {
@@ -9,18 +9,38 @@ export class RefreshTokenGuard extends AuthGuardPassport('jwt-refresh') {
     super();
   }
 
-  canActivate(
-    context: ExecutionContext,
-  ): Promise<boolean> | boolean | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-
     const refreshToken = request.cookies?.['refreshToken'];
+    const accessToken = request['headers']['authorization'];
+    const loggedInData = request.session['user-info'];
+
+    if (
+      !this.checkIfTokenExistsInSession(accessToken, refreshToken, loggedInData)
+    )
+      return false;
 
     request.body = {
       ...request.body,
       refreshToken,
     };
 
-    return super.canActivate(context);
+    const result = (await super.canActivate(context)) as boolean;
+
+    return result;
+  }
+
+  private checkIfTokenExistsInSession(
+    token: string,
+    refreshToken: string,
+    session: UserLoggedInWithTokens,
+  ): boolean {
+    const storedAccessToken = `Bearer ${session?.accessToken}`;
+
+    if (token === storedAccessToken && refreshToken === session.refreshToken) {
+      return true;
+    }
+
+    return false;
   }
 }

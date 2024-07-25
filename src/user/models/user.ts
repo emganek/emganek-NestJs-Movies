@@ -1,4 +1,5 @@
 import { UserRoleEntity } from '../entities/user-role.entity';
+import { UserEntity } from '../entities/user.entity';
 
 export interface UserLoggedInInfo {
   email: string;
@@ -8,8 +9,12 @@ export interface UserLoggedInInfo {
   id: string;
 }
 
-export interface UserLoggedInWithTokens extends UserLoggedInInfo {
+export interface UserLoggedInWithTokens extends UserEntity {
   accessToken: string;
   hasRefreshToken: boolean;
   refreshToken: string;
+}
+
+export interface TokenDataEncoded {
+  taiKhoan: string;
 }

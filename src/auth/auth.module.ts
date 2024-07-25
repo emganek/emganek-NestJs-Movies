@@ -21,7 +21,7 @@ import { SessionService } from './services/session.service';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '10m' },
+      signOptions: { expiresIn: '10s' },
     }),
   ],
   providers: [
